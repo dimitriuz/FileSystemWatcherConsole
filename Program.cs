@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddCommandLine(args);
+builder.Configuration.AddJsonFile("appsettings.json");
 builder.Logging.AddSimpleConsole(options =>
 {
     options.IncludeScopes = true;
@@ -16,7 +17,6 @@ builder.Logging.AddSimpleConsole(options =>
 builder.Services.AddSingleton<FileProcessor>();
 builder.Services.AddSingleton<FileWatcherMonitor>();
 
-//builder.Services.AddHostedService<FileWatcherMonitor>();
 builder.Services.AddHostedService<App>();
 
 IHost host = builder.Build();
