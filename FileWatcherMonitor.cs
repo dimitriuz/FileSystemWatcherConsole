@@ -1,55 +1,69 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Threading;
+using Serilog;
 
 public class FileWatcherMonitor
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<FileWatcherMonitor> _logger;
+    private readonly IHostApplicationLifetime _lifetime;
     private FileSystemWatcher _fileSystemWatcher;
 
-    public FileWatcherMonitor(IConfiguration configuration, ILogger<FileWatcherMonitor> logger)
+    public FileWatcherMonitor(IConfiguration configuration, ILogger<FileWatcherMonitor> logger, IHostApplicationLifetime lifetime)
     {
         _configuration = configuration;
         _logger = logger;
+        _lifetime = lifetime;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await StartFileWatcher(_configuration.GetSection("path").Value);
+        var args = Environment.GetCommandLineArgs();
+        await StartFileWatcher(args[1]);
 
         cancellationToken.Register(() => 
         { 
-            _fileSystemWatcher.Dispose(); 
+            _fileSystemWatcher?.Dispose(); 
         });
     }
 
     private async Task StartFileWatcher(string path)
     {
-        _fileSystemWatcher = new FileSystemWatcher
+        try
         {
-            Path = path,
+            _fileSystemWatcher = new FileSystemWatcher
+            {
+                Path = path,
 
-            NotifyFilter = NotifyFilters.Attributes |
-                           NotifyFilters.DirectoryName |
-                           NotifyFilters.FileName |
-                           NotifyFilters.LastWrite |
-                           NotifyFilters.Security |
-                           NotifyFilters.Size,
+                NotifyFilter = NotifyFilters.Attributes |
+                          NotifyFilters.DirectoryName |
+                          NotifyFilters.FileName |
+                          NotifyFilters.LastWrite |
+                          NotifyFilters.Security |
+                          NotifyFilters.Size,
 
-            IncludeSubdirectories = true,
-            InternalBufferSize = 64 * 1024
-        };
-
+                IncludeSubdirectories = true,
+                InternalBufferSize = 64 * 1024
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, ex.Message);
+            _lifetime.StopApplication();
+            return;
+        }
+       
         _fileSystemWatcher.Created += ProcessFileSystemWatcherEvent;
         _fileSystemWatcher.Changed += ProcessFileSystemWatcherEvent;
         _fileSystemWatcher.Renamed += ProcessFileSystemWatcherRenamedEvent;
         _fileSystemWatcher.Deleted += ProcessFileSystemWatcherEvent;
         _fileSystemWatcher.Error += ProcessFileSystemError;
-
-        _logger.LogInformation("Starting to watch folder {path}", path);
+        
         _fileSystemWatcher.EnableRaisingEvents = true;
+
+        _logger.LogInformation("Start monitoring the folder {path}", path);
     }
 
     private void ProcessFileSystemError(object sender, ErrorEventArgs e)

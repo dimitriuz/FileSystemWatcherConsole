@@ -2,7 +2,7 @@
   "profiles": {
     "FileSystemWatcherConsole": {
       "commandName": "Project",
-      "commandLineArgs": "path=\"c:\\ld\\dc\\tmp\""
+      "commandLineArgs": "\"c:\\ld\\dc\\tmp\""
     }
   }
 }
