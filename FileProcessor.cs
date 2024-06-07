@@ -35,7 +35,7 @@ public class FileProcessor
         using var destinationStream = new FileStream(destination, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None);
         await sourceStream.CopyToAsync(destinationStream);
         await Task.Delay(delay);
-        _logger.LogInformation("File unlocked {source}", filename);
+        _logger.LogInformation("File unlocked {source}", destination);
     }
 
     public Task DeleteFile(string filename)
