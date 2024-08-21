@@ -1,13 +1,67 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
 
-public class FileProcessor
+namespace FileSystemWatcherConsole.FileProcessor;
+public class FileProcessorService
 {
     IConfiguration _configuration;
-    private readonly ILogger<FileProcessor> _logger;
-    private string destinationPath;
-    private string GetSourcePath(string filename) 
+    private readonly IOptions<RuntimeConfig> _runtimeConfig;
+    private readonly ILogger<FileProcessorService> _logger;
+    private string _destinationPath;
+    //private List<ProcessorStep> _processorSteps = new();
+
+    public FileProcessorService(IConfiguration configuration, IOptions<RuntimeConfig> runtimeConfig, ILogger<FileProcessorService> logger)
+    {
+        _configuration = configuration;
+        this._runtimeConfig = runtimeConfig;
+        _logger = logger;
+        _destinationPath = runtimeConfig.Value.Path;
+
+
+        //generate temp file
+
+        //_processorSteps.Add(new CopyFileProcessorStep() { Source = @"c:\temp", Destination = @"d:\tmp" });
+        //_processorSteps.Add(new CopyFileProcessorStep() { Source = @"d:\temp", Destination = @"d:\tmp2" });
+        //var s = JsonSerializer.Serialize<ProcessorStep[]>(_processorSteps.ToArray());
+        //var a = JsonSerializer.Deserialize<ProcessorStep[]>(s);
+
+    }
+
+    public async Task Run()
+    {
+        var actions = await GetActionsFromFile(_runtimeConfig.Value.ActionsFile);
+        if (actions is null) return;
+
+        foreach (var action in actions)
+        {
+            var stopwatch = new Stopwatch();
+            Console.WriteLine(action.StartMessage);
+            stopwatch.Start();
+            await action.Handle();
+            stopwatch.Stop();
+            Console.WriteLine($"{action.FinishMessage.Trim()}. Elapsed {stopwatch.ElapsedMilliseconds} ms");
+        };
+    }
+
+    private async Task<List<ProcessorAction>?> GetActionsFromFile(string path)
+    {
+        var stream = new FileStream(_runtimeConfig.Value.ActionsFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+        try
+        {
+            return await JsonSerializer.DeserializeAsync<List<ProcessorAction>>(stream);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Parsing actions file error");
+            return null;
+        }
+    }
+
+    private string GetSourcePath(string filename)
     {
         string source;
 
@@ -17,18 +71,13 @@ public class FileProcessor
         }
         else
         {
-                source = filename;
+            source = filename;
         };
 
         return source;
     }
-    private string GetDestinationPath(string filename) => Path.Combine(destinationPath, filename);
-    public FileProcessor(IConfiguration configuration, ILogger<FileProcessor> logger)
-    {
-        _configuration = configuration;
-        _logger = logger;
-        destinationPath = Environment.GetCommandLineArgs()[1];
-    }
+    private string GetDestinationPath(string filename) => Path.Combine(_destinationPath, filename);
+
 
     public async Task CopyFile(string filename, string? destinationFilename = null)
     {
@@ -46,7 +95,7 @@ public class FileProcessor
         _logger.LogInformation("Copying folder {source}", source);
 
         var destination = GetDestinationPath(destinationFilename is null ? sourceDir : destinationFilename);
-        
+
         var dir = new DirectoryInfo(source);
 
         // Cache directories before we start copying
@@ -97,16 +146,6 @@ public class FileProcessor
         _logger.LogInformation("File unlocked {source}", destination);
     }
 
-    public Task DeleteFile(string filename)
-    {
-        var file = GetDestinationPath(filename);
-        if (File.Exists(file))
-        {
-            _logger.LogInformation("Deleting file {sourceDir}", filename);
-            File.Delete(file);
-        }
-        return Task.CompletedTask;
-    }
 
     public Task DeleteFolder(string path)
     {

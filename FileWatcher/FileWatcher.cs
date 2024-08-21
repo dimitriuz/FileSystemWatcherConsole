@@ -1,31 +1,33 @@
-﻿// See https://aka.ms/new-console-template for more information
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Serilog;
 
-public class FileWatcherMonitor
+namespace FileSystemWatcherConsole.FileWatcher;
+public class FileWatcherService
 {
     private readonly IConfiguration _configuration;
-    private readonly ILogger<FileWatcherMonitor> _logger;
+    private readonly IOptions<RuntimeConfig> _runtimeConfig;
+    private readonly ILogger<FileWatcherService> _logger;
     private readonly IHostApplicationLifetime _lifetime;
     private FileSystemWatcher _fileSystemWatcher;
 
-    public FileWatcherMonitor(IConfiguration configuration, ILogger<FileWatcherMonitor> logger, IHostApplicationLifetime lifetime)
+    public FileWatcherService(IConfiguration configuration, IOptions<RuntimeConfig> runtimeConfig, ILogger<FileWatcherService> logger, IHostApplicationLifetime lifetime)
     {
         _configuration = configuration;
+        _runtimeConfig = runtimeConfig;
         _logger = logger;
         _lifetime = lifetime;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var args = Environment.GetCommandLineArgs();
-        await StartFileWatcher(args[1]);
+        await StartFileWatcher(_runtimeConfig.Value.Path);
 
-        cancellationToken.Register(() => 
-        { 
-            _fileSystemWatcher?.Dispose(); 
+        cancellationToken.Register(() =>
+        {
+            _fileSystemWatcher?.Dispose();
         });
     }
 
@@ -54,13 +56,13 @@ public class FileWatcherMonitor
             _lifetime.StopApplication();
             return;
         }
-       
+
         _fileSystemWatcher.Created += ProcessFileSystemWatcherEvent;
         _fileSystemWatcher.Changed += ProcessFileSystemWatcherEvent;
         _fileSystemWatcher.Renamed += ProcessFileSystemWatcherRenamedEvent;
         _fileSystemWatcher.Deleted += ProcessFileSystemWatcherEvent;
         _fileSystemWatcher.Error += ProcessFileSystemError;
-        
+
         _fileSystemWatcher.EnableRaisingEvents = true;
 
         _logger.LogInformation("Start monitoring the folder {path}", path);
