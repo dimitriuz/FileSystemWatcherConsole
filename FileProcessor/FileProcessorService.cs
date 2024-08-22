@@ -38,6 +38,8 @@ public class FileProcessorService
 
         foreach (var action in actions)
         {
+            if (!action.Enabled) continue;
+
             var stopwatch = new Stopwatch();
             Console.WriteLine(action.StartMessage);
             stopwatch.Start();
@@ -49,7 +51,7 @@ public class FileProcessorService
 
     private async Task<List<ProcessorAction>?> GetActionsFromFile(string path)
     {
-        var stream = new FileStream(_runtimeConfig.Value.ActionsFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var stream = new FileStream(_runtimeConfig.Value.ActionsFile, FileMode.Open, FileAccess.Read, FileShare.Read);
         try
         {
             return await JsonSerializer.DeserializeAsync<List<ProcessorAction>>(stream);

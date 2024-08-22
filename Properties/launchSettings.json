@@ -2,7 +2,7 @@
   "profiles": {
     "FileSystemWatcherConsole": {
       "commandName": "Project",
-      "commandLineArgs": "d:\\features\\BNB-499\\case\\ --actions c:\\ld\\tmp\\actions.json"
+      "commandLineArgs": "c:\\LD\\DC\\tmp\\ez3d\\ --actions c:\\ld\\tmp\\actions.json"
     }
   }
 }

@@ -11,5 +11,5 @@ public enum ProcessorType
     LockFileUntilKeyPressed,
     LockFile,
     WaitKey,
-
+    CreateAndUpdateFileFromTemplate
 }
