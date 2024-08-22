@@ -4,9 +4,6 @@ namespace FileSystemWatcherConsole.FileProcessor;
 
 public class CreateAndUpdateFileFromTemplateProcessorAction : ProcessorAction
 {
-    public CreateAndUpdateFileFromTemplateProcessorAction() : base()
-    {
-    }
     [JsonIgnore]
     public override ProcessorType ProcessorType => ProcessorType.CreateAndUpdateFileFromTemplate;
     public string SourceForCreate { get; init; } = string.Empty;
@@ -18,8 +15,6 @@ public class CreateAndUpdateFileFromTemplateProcessorAction : ProcessorAction
 
     public override async Task Handle()
     {
-        //_logger.LogInformation("Copying file {source}", Source);
-
         var sourceForCreatePath = FileProcessorHelpers.GetPath(SourceForCreate);
         var sourceForUpdatePath = FileProcessorHelpers.GetPath(SourceForUpdate);
         var destinationPath = FileProcessorHelpers.GetPath(Destination);

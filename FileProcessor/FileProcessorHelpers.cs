@@ -16,7 +16,6 @@ public static class FileProcessorHelpers
 
         return source;
     }
-    //public static string GetDestinationPath(string filename, string destinationPath) => Path.Combine(destinationPath, filename);
 
     public static async Task ClearFolder(string path)
     {
@@ -35,5 +34,4 @@ public static class FileProcessorHelpers
         }
         return Task.CompletedTask;
     }
-
 }

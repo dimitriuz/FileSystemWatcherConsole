@@ -1,5 +1,4 @@
 ﻿using System.CommandLine;
-using System.Numerics;
 using FileSystemWatcherConsole;
 using FileSystemWatcherConsole.FileProcessor;
 using FileSystemWatcherConsole.FileWatcher;
@@ -14,7 +13,7 @@ using Serilog.Templates;
 using Serilog.Templates.Themes;
 
 string logPath = Path.Combine(@"logs\log_.json");
-string consoleLogMessageTemplate = "[{@t:HH:mm:ss} {@l:u3}] {@m}\n"; //({ SourceContext}){@x}
+string consoleLogMessageTemplate = "[{@t:HH:mm:ss} {@l:u3} ({ SourceContext}){@x}] {@m}\n"; //({ SourceContext}){@x}
 
 var loggerConfig = new LoggerConfiguration()
             .Enrich.FromLogContext()
@@ -27,35 +26,6 @@ var loggerConfig = new LoggerConfiguration()
             .WriteTo.Async(w => w.Console(new ExpressionTemplate(consoleLogMessageTemplate, theme: TemplateTheme.Code)));
 
 Log.Logger = loggerConfig.CreateLogger();
-
-// if (args.Length == 0)
-// {
-//     Log.Error("You have to set the path in the arguments, for example: \n \t FileSystemWatcherConsole.exe \"c:\\tmp\"");
-//     Log.CloseAndFlush();
-//     return;
-// }
-
-// var watchDirOption = new Option<string?>(
-//            name: "--path",
-//            parseArgument: result =>
-//            {
-//                string? path = result.Tokens.SingleOrDefault()?.Value;
-
-//                if (result.Tokens.Count == 0 || string.IsNullOrEmpty(path) || !Directory.Exists(path))
-//                {
-//                    result.ErrorMessage = "Directory under watching does not exist";
-//                    return null;
-//                }
-
-//                else
-//                {
-//                    return path;
-//                }
-//            },
-//            description: "The directory to watch.")
-// {
-//     IsRequired = true
-// };
 
 var pathArgument = new Argument<string>(
       name: "path",
@@ -89,7 +59,7 @@ rootCommand.Add(processFileOption);
 Log.Information("Application started. Press Ctrl+C to exit");
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
-//builder.Configuration.AddCommandLine(args);
+
 builder.Configuration.AddJsonFile("appsettings.json", true);
 
 rootCommand.SetHandler((pathArgumentValue, processFileOptionValue) =>
