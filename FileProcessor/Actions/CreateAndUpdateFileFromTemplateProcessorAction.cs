@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging;
 
-namespace FileSystemWatcherConsole.FileProcessor;
+namespace FileSystemWatcherConsole.FileProcessor.Actions;
 
 public class CreateAndUpdateFileFromTemplateProcessorAction : ProcessorAction
 {
@@ -23,20 +24,32 @@ public class CreateAndUpdateFileFromTemplateProcessorAction : ProcessorAction
         {
             await Task.Run(async () =>
             {
+                LogInformation("Creating file from template. Source: {SourceForCreate}, Destination: {Destination}", 
+                    sourceForCreatePath, destinationPath);
+
                 using var sourceForCreateStream = new FileStream(sourceForCreatePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-                using var sourceForUpdateStream = new FileStream(sourceForUpdatePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                 using var destinationStream = new FileStream(destinationPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Write);
-                sourceForCreateStream.CopyTo(destinationStream);
+                await sourceForCreateStream.CopyToAsync(destinationStream);
                 destinationStream.Close();
+                
+                LogInformation("Initial file created. Waiting {DelayMs}ms before update", DelayInMs);
                 await Task.Delay(DelayInMs);
+
+                LogInformation("Updating file from template. Source: {SourceForUpdate}, Destination: {Destination}", 
+                    sourceForUpdatePath, destinationPath);
+                    
+                using var sourceForUpdateStream = new FileStream(sourceForUpdatePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                 using var destinationStreamForUpdate = new FileStream(destinationPath, FileMode.Open, FileAccess.Write, FileShare.Write);
-                sourceForUpdateStream.CopyTo(destinationStreamForUpdate);
+                await sourceForUpdateStream.CopyToAsync(destinationStreamForUpdate);
                 destinationStreamForUpdate.Close();
+
+                LogInformation("File successfully created and updated: {Destination}", destinationPath);
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            LogError(ex, "Failed to create/update file from template. Create source: {SourceForCreate}, Update source: {SourceForUpdate}, Destination: {Destination}", 
+                sourceForCreatePath, sourceForUpdatePath, destinationPath);
         }
     }
 }

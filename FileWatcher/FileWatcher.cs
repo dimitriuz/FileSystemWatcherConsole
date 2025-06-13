@@ -11,9 +11,12 @@ public class FileWatcherService
     private readonly IOptions<RuntimeConfig> _runtimeConfig;
     private readonly ILogger<FileWatcherService> _logger;
     private readonly IHostApplicationLifetime _lifetime;
-    private FileSystemWatcher _fileSystemWatcher;
+    private FileSystemWatcher? _fileSystemWatcher;
 
-    public FileWatcherService(IConfiguration configuration, IOptions<RuntimeConfig> runtimeConfig, ILogger<FileWatcherService> logger, IHostApplicationLifetime lifetime)
+    public FileWatcherService(IConfiguration configuration,
+        IOptions<RuntimeConfig> runtimeConfig,
+        ILogger<FileWatcherService> logger,
+        IHostApplicationLifetime lifetime)
     {
         _configuration = configuration;
         _runtimeConfig = runtimeConfig;
@@ -31,7 +34,7 @@ public class FileWatcherService
         });
     }
 
-    private async Task StartFileWatcher(string path)
+    private Task StartFileWatcher(string path)
     {
         try
         {
@@ -54,7 +57,7 @@ public class FileWatcherService
         {
             Log.Fatal(ex, ex.Message);
             _lifetime.StopApplication();
-            return;
+            return Task.CompletedTask;
         }
 
         _fileSystemWatcher.Created += ProcessFileSystemWatcherEvent;
@@ -66,6 +69,7 @@ public class FileWatcherService
         _fileSystemWatcher.EnableRaisingEvents = true;
 
         _logger.LogInformation("Start monitoring the folder {path}", path);
+        return Task.CompletedTask;
     }
 
     private void ProcessFileSystemError(object sender, ErrorEventArgs e)

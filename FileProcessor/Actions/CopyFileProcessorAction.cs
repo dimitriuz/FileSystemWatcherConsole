@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging;
 
-namespace FileSystemWatcherConsole.FileProcessor;
+namespace FileSystemWatcherConsole.FileProcessor.Actions;
 
 public class CopyFileProcessorAction : ProcessorAction
 {
@@ -16,11 +17,13 @@ public class CopyFileProcessorAction : ProcessorAction
         var destination = FileProcessorHelpers.GetPath(Destination);
         try
         {
-            await Task.Run(() => File.Copy(source, destination));
+            LogInformation("Copying file from {Source} to {Destination}", source, destination);
+            await FileProcessorHelpers.CopyFileAsync(source, destination);
+            LogInformation("File copied successfully");
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            LogError(ex, "Failed to copy file from {Source} to {Destination}", source, destination);
         }
     }
 }

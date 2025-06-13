@@ -1,0 +1,33 @@
+[
+  {
+    "processorType": "WaitKey",
+    "enabled": true,
+    "name": "Start confirmation",
+    "message": "About to perform file cleanup. Press any key to start..."
+  },
+  {
+    "processorType": "LockFileUntilKeyPressed",
+    "enabled": true,
+    "name": "Lock main database",
+    "source": "data/main.db"
+  },
+  {
+    "processorType": "DeleteFolder",
+    "enabled": true,
+    "name": "Clean temp files",
+    "source": "temp/cache",
+    "recursive": true
+  },
+  {
+    "processorType": "DeleteFile",
+    "enabled": true,
+    "name": "Remove old log",
+    "source": "logs/old.log"
+  },
+  {
+    "processorType": "WaitKey",
+    "enabled": true,
+    "name": "Completion notification",
+    "message": "Cleanup complete. Press any key to exit..."
+  }
+]
