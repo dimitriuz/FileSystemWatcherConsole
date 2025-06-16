@@ -8,13 +8,13 @@ namespace FileSystemWatcherConsole.FileWatcher;
 public class FileWatcherService
 {
     private readonly IConfiguration _configuration;
-    private readonly IOptions<RuntimeConfig> _runtimeConfig;
+    private readonly IOptions<AppArguments> _runtimeConfig;
     private readonly ILogger<FileWatcherService> _logger;
     private readonly IHostApplicationLifetime _lifetime;
     private FileSystemWatcher? _fileSystemWatcher;
 
     public FileWatcherService(IConfiguration configuration,
-        IOptions<RuntimeConfig> runtimeConfig,
+        IOptions<AppArguments> runtimeConfig,
         ILogger<FileWatcherService> logger,
         IHostApplicationLifetime lifetime)
     {

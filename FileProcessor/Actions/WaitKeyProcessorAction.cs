@@ -21,7 +21,7 @@ public class WaitKeyProcessorAction : ProcessorAction
             // Wait for key press in a non-blocking way
             await Task.Run(() =>
             {
-                Console.ReadKey(intercept: true);
+                Console.Read();
             });
             
             LogInformation("Key pressed, continuing execution");

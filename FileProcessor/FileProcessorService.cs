@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace FileSystemWatcherConsole.FileProcessor;
@@ -9,11 +10,11 @@ namespace FileSystemWatcherConsole.FileProcessor;
 public class FileProcessorService
 {
     private readonly IConfiguration _configuration;
-    private readonly IOptions<RuntimeConfig> _runtimeConfig;
+    private readonly IOptions<AppArguments> _runtimeConfig;
     private readonly ILogger<FileProcessorService> _logger;
 
     public FileProcessorService(IConfiguration configuration,
-    IOptions<RuntimeConfig> runtimeConfig,
+    IOptions<AppArguments> runtimeConfig,
     ILogger<FileProcessorService> logger)
     {
         _configuration = configuration;
@@ -29,12 +30,16 @@ public class FileProcessorService
             return;
         }
 
-        var actions = await GetActionsFromFile(_runtimeConfig.Value.ActionsFile);
+        var actions = await GetActionsFromFile(_runtimeConfig.Value);
         if (actions is null) return;
 
         foreach (var action in actions)
         {
-            if (!action.Enabled) continue;
+            if (!action.Enabled)
+            {
+                _logger.LogInformation("Action {ActionName} is disabled, skipping", action.Name);
+                continue;
+            }
 
             var stopwatch = new Stopwatch();
             _logger.LogInformation(action.StartMessage);
@@ -45,20 +50,25 @@ public class FileProcessorService
         }
     }
 
-    private async Task<List<ProcessorAction>?> GetActionsFromFile(string path)
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
+    private async Task<List<ProcessorAction>?> GetActionsFromFile(AppArguments config)
     {
-        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var stream = new FileStream(config.ActionsFile!, FileMode.Open, FileAccess.Read, FileShare.Read);
         try
         {
-            var actions = await JsonSerializer.DeserializeAsync<List<ProcessorAction>>(stream);
+            var actions = await JsonSerializer.DeserializeAsync<List<ProcessorAction>>(stream, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+            });
             if (actions is null)
             {
-                _logger.LogWarning("No actions found in the file: {ActionsFile}", path);
+                _logger.LogWarning("No actions found in the file: {ActionsFile}", config.ActionsFile);
                 return null;
             }
             foreach (var action in actions)
             {
-                action.Init(_logger);
+                action.Init(config.Path, _logger);
             }
             return actions;
         }

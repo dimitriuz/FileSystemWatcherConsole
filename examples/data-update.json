@@ -3,29 +3,29 @@
     "processorType": "CopyFolder",
     "enabled": true,
     "name": "Backup current state",
-    "source": "data/current",
-    "destination": "data/backup",
+    "source": "demofiles/data/current",
+    "destination": "demofiles/data/backup",
     "recursive": true
   },
   {
     "processorType": "MoveFolder",
     "enabled": true,
     "name": "Move new data",
-    "source": "data/incoming",
-    "destination": "data/current"
+    "source": "demofiles/data/incoming",
+    "destination": "demofiles/data/current"
   },
   {
     "processorType": "CopyFile",
     "enabled": true,
     "name": "Update version file",
-    "source": "data/version-new.txt",
-    "destination": "data/current/version.txt"
+    "source": "demofiles/data/version-new.txt",
+    "destination": "demofiles/data/current/version.txt"
   },
   {
     "processorType": "LockFile",
     "enabled": true,
     "name": "Lock version file temporarily",
-    "source": "data/current/version.txt",
+    "source": "demofiles/data/current/version.txt",
     "lockDurationMs": 3000
   }
 ]

@@ -9,29 +9,24 @@ A .NET application that provides a flexible and extensible way to perform file s
 - **File Locking**: Lock files temporarily or until user interaction
 - **Template Processing**: Create and update files from templates
 - **User Interaction**: Pause and resume operations with key press
-- **Structured Logging**: Comprehensive logging of all operations
+- **Structured Logging**: Comprehensive logging of all operations to the console and log file
 - **JSON Configuration**: Define operation sequences in JSON
 
 ## Getting Started
 
-1. Clone the repository
-2. Configure your action sequence in a JSON file
-3. Update the `appsettings.json` to point to your action file
-4. Run the application
+1. Clone the repository / download release
+2. Configure your action sequence in a JSON file (in case you need actions)
+3. Run the application
 
-## Configuration
+## Command line options
+Usage:
+  FileSystemWatcherConsole `path` [options]
 
-The application uses two types of configuration:
+Arguments:
+  `path`  The directory to watch.
 
-### Runtime Configuration (appsettings.json)
-
-```json
-{
-  "RuntimeConfig": {
-    "ActionsFile": "examples/project-setup.json"
-  }
-}
-```
+Options:
+  --actions `actions.json`  The json file to process actions.
 
 ### Action Sequences
 
@@ -80,31 +75,15 @@ Illustrates a data update workflow:
 - Temporarily locks files during update
 
 ## Usage Examples
-
-1. Project Setup:
+1. Just watching for file system events:
 ```bash
-dotnet run -- --actionsFile examples/project-setup.json
+./FileSystemWatcherConsole ./examples
 ```
 
-2. Cleanup:
+2. Watching for file system events and run specific actions:
 ```bash
-dotnet run -- --actionsFile examples/cleanup.json
+./FileSystemWatcherConsole ./examples --actions examples/project-setup.json
 ```
-
-3. Data Update:
-```bash
-dotnet run -- --actionsFile examples/data-update.json
-```
-
-## Error Handling
-
-The application includes comprehensive error handling:
-- File not found scenarios
-- Access violations
-- Lock conflicts
-- Invalid configurations
-
-All errors are logged with full context for easy troubleshooting.
 
 ## Best Practices
 

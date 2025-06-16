@@ -2,13 +2,13 @@ namespace FileSystemWatcherConsole.FileProcessor;
 
 public static class FileProcessorHelpers
 {
-    public static string GetPath(string filename)
+    public static string GetPath(string root, string filename)
     {
         string source;
 
         if (!Path.IsPathFullyQualified(filename))
         {
-            source = @$"files\{filename}";
+            source = Path.Combine(root, filename);
         }
         else
         {
@@ -19,17 +19,18 @@ public static class FileProcessorHelpers
         return source;
     }
 
-    public static async Task ClearFolder(string path)
+    public static async Task ClearFolder(string root, string path)
     {
-        foreach (var file in Directory.EnumerateFiles(path))
+        var folderPath = GetPath(root, path);
+        foreach (var file in Directory.EnumerateFiles(folderPath))
         {
-            await DeleteFile(Path.GetFileName(file));
+            await DeleteFile(root, Path.GetFileName(file));
         }
     }
 
-    public static Task DeleteFile(string filename)
+    public static Task DeleteFile(string root, string filename)
     {
-        var file = GetPath(filename);
+        var file = GetPath(root, filename);
         if (File.Exists(file))
         {
             File.Delete(file);

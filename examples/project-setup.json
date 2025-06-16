@@ -3,8 +3,8 @@
     "processorType": "CopyFolder",
     "enabled": true,
     "name": "Copy template folder",
-    "source": "templates/project1",
-    "destination": "output/project1",
+    "source": "demofiles/templates/project1",
+    "destination": "demofiles/output/project1",
     "recursive": true
   },
   {
@@ -17,17 +17,17 @@
     "processorType": "CopyFileWithLock",
     "enabled": true,
     "name": "Copy and lock config file",
-    "source": "config/settings.json",
-    "destination": "output/project1/settings.json",
+    "source": "demofiles/config/settings.json",
+    "destination": "demofiles/output/project1/settings.json",
     "lockDurationMs": 5000
   },
   {
     "processorType": "CreateAndUpdateFileFromTemplate",
     "enabled": true,
     "name": "Generate and update readme",
-    "sourceForCreate": "templates/README-template.md",
-    "sourceForUpdate": "templates/README-updates.md",
-    "destination": "output/project1/README.md",
+    "sourceForCreate": "demofiles/templates/README-template.md",
+    "sourceForUpdate": "demofiles/templates/README-updates.md",
+    "destination": "demofiles/output/project1/README.md",
     "delayInMs": 1000
   }
 ]

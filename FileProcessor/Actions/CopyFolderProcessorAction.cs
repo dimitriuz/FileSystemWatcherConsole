@@ -14,8 +14,8 @@ public class CopyFolderProcessorAction : ProcessorAction
 
     public override async Task Handle()
     {
-        var source = FileProcessorHelpers.GetPath(Source);
-        var destination = FileProcessorHelpers.GetPath(Destination);
+        var source = FileProcessorHelpers.GetPath(RootFolder, Source);
+        var destination = FileProcessorHelpers.GetPath(RootFolder, Destination);
         try
         {
             if (!Directory.Exists(source))

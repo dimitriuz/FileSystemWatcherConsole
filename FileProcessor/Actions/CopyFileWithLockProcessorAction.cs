@@ -16,8 +16,8 @@ public class CopyFileWithLockProcessorAction : ProcessorAction
 
     public override async Task Handle()
     {
-        var sourcePath = FileProcessorHelpers.GetPath(Source);
-        var destinationPath = FileProcessorHelpers.GetPath(Destination);
+        var sourcePath = FileProcessorHelpers.GetPath(RootFolder, Source);
+        var destinationPath = FileProcessorHelpers.GetPath(RootFolder, Destination);
 
         try
         {

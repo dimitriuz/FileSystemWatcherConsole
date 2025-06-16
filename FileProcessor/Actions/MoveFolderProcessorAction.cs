@@ -14,8 +14,8 @@ public class MoveFolderProcessorAction : ProcessorAction
 
     public override Task Handle()
     {
-        var source = FileProcessorHelpers.GetPath(Source);
-        var destination = FileProcessorHelpers.GetPath(Destination);
+        var source = FileProcessorHelpers.GetPath(RootFolder, Source);
+        var destination = FileProcessorHelpers.GetPath(RootFolder, Destination);
         try
         {
             LogInformation("Moving folder from {Source} to {Destination}", source, destination);

@@ -3,6 +3,7 @@ using FileSystemWatcherConsole.FileProcessor.Actions;
 using Microsoft.Extensions.Logging;
 
 namespace FileSystemWatcherConsole.FileProcessor;
+
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "processorType", UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToBaseType)]
 [JsonDerivedType(typeof(CopyFileProcessorAction), typeDiscriminator: nameof(ProcessorType.CopyFile))]
 [JsonDerivedType(typeof(CopyFolderProcessorAction), typeDiscriminator: nameof(ProcessorType.CopyFolder))]
@@ -12,12 +13,16 @@ namespace FileSystemWatcherConsole.FileProcessor;
 [JsonDerivedType(typeof(DeleteFolderProcessorAction), typeDiscriminator: nameof(ProcessorType.DeleteFolder))]
 [JsonDerivedType(typeof(LockFileProcessorAction), typeDiscriminator: nameof(ProcessorType.LockFile))]
 [JsonDerivedType(typeof(CreateAndUpdateFileFromTemplateProcessorAction), typeDiscriminator: nameof(ProcessorType.CreateAndUpdateFileFromTemplate))]
+[JsonDerivedType(typeof(WaitKeyProcessorAction), typeDiscriminator: nameof(ProcessorType.WaitKey))]
+[JsonDerivedType(typeof(LockFileUntilKeyPressedProcessorAction), typeDiscriminator: nameof(ProcessorType.LockFileUntilKeyPressed))]
+
 public abstract class ProcessorAction
 {
-    protected ILogger Logger{ get; private set; } = null!;
+    protected ILogger Logger { get; private set; } = null!;
 
-    internal void Init(ILogger logger)
+    internal void Init(string root, ILogger logger)
     {
+        RootFolder = root;
         Logger = logger;
     }
 
@@ -25,6 +30,8 @@ public abstract class ProcessorAction
     public abstract ProcessorType ProcessorType { get; }
     public bool Enabled { get; set; }
     public string Name { get; set; } = string.Empty;
+    [JsonIgnore]
+    public string RootFolder { get; private set; } = string.Empty;
     public abstract Task Handle();
     public virtual string StartMessage => $"Action started: {ProcessorType}{(string.IsNullOrEmpty(Name) ? "" : $"({Name})")}";
     public virtual string FinishMessage => $"Action finished: {ProcessorType}{(string.IsNullOrEmpty(Name) ? "" : $"({Name})")}";

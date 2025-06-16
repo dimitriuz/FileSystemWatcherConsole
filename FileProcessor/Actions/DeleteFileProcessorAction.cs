@@ -14,7 +14,7 @@ public class DeleteFileProcessorAction : ProcessorAction
 
     public override async Task Handle()
     {
-        var source = FileProcessorHelpers.GetPath(Source);
+        var source = FileProcessorHelpers.GetPath(RootFolder, Source);
         try
         {
             await Task.Run(() =>

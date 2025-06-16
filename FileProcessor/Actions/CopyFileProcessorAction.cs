@@ -13,8 +13,8 @@ public class CopyFileProcessorAction : ProcessorAction
 
     public override async Task Handle()
     {
-        var source = FileProcessorHelpers.GetPath(Source);
-        var destination = FileProcessorHelpers.GetPath(Destination);
+        var source = FileProcessorHelpers.GetPath(RootFolder, Source);
+        var destination = FileProcessorHelpers.GetPath(RootFolder, Destination);
         try
         {
             LogInformation("Copying file from {Source} to {Destination}", source, destination);

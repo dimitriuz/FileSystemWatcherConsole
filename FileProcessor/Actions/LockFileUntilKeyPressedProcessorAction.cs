@@ -14,7 +14,7 @@ public class LockFileUntilKeyPressedProcessorAction : ProcessorAction
 
     public override async Task Handle()
     {
-        var source = FileProcessorHelpers.GetPath(Source);
+        var source = FileProcessorHelpers.GetPath(RootFolder, Source);
         FileStream? fileStream = null;
 
         try

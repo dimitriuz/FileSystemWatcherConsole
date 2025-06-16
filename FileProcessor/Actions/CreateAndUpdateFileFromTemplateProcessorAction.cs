@@ -16,9 +16,9 @@ public class CreateAndUpdateFileFromTemplateProcessorAction : ProcessorAction
 
     public override async Task Handle()
     {
-        var sourceForCreatePath = FileProcessorHelpers.GetPath(SourceForCreate);
-        var sourceForUpdatePath = FileProcessorHelpers.GetPath(SourceForUpdate);
-        var destinationPath = FileProcessorHelpers.GetPath(Destination);
+        var sourceForCreatePath = FileProcessorHelpers.GetPath(RootFolder, SourceForCreate);
+        var sourceForUpdatePath = FileProcessorHelpers.GetPath(RootFolder, SourceForUpdate);
+        var destinationPath = FileProcessorHelpers.GetPath(RootFolder, Destination);
 
         try
         {
